@@ -1,0 +1,57 @@
+version: '3.2'
+services:
+  passitdb:
+    image: postgres
+    restart: always
+    networks:
+      - pass_it_network
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgress
+      - POSTGRES_DB=postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  passit:
+    image: passit/passit:stable
+    command: sh -c "chmod +x ./bin/start.sh && sh ./bin/start.sh"
+    ports:
+      - "8081:8080"
+    depends_on:
+      - passitdb
+    networks:
+      - pass_it_network
+    volumes:
+      - ./start.sh:/code/bin/start.sh
+    environment:
+      DATABASE_URL: postgres://postgres:postgress@passitdb:5432/postgres
+      SECRET_KEY: 'y2W*KFADh&8yf3SgkB*!Tl'
+      IS_DEBUG: 'False'
+      EMAIL_URL: "smtp+ssl://jenkins@logicabeans.com:jenkins%40123@mail.logicabeans.com:465"
+      DEFAULT_FROM_EMAIL: "jenkins@logicabeans.com"
+      EMAIL_CONFIRMATION_HOST: "http://pass.logicabeans.com"
+      ENABLE_DJANGO_ADMIN: 'True'
+      DJANGO_SECRET_KEY: 'y2W*KFADh&8yf3SgkB*!Tl'
+      IS_PRIVATE_ORG_MODE: 'True'
+      NAME: 'LOGICABEANS PASSWORD MANAGER'
+      APPLICATION_DOMAIN: 'http://pass.logicabeans.com'
+      PRIVATE_ORG_MODE_WHITELIST: 'pass.logicabeans.com'
+    secrets:
+      - source: passit.crt
+        target: /code/bin/passit.crt
+      - source: passit.key
+        target: /code/bin/passit.key
+#      - source: start.sh
+#        target: /code/bin/start.sh
+networks:
+  pass_it_network:
+volumes: 
+  pgdata:
+secrets:
+  passit.crt:
+    file: ./passit.crt
+  passit.key:
+    file: ./passit.key
+ # start.sh:
+ #   file: ./start.sh
