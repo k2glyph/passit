@@ -22,8 +22,6 @@ services:
       - passitdb
     networks:
       - pass_it_network
-    volumes:
-      - ./start.sh:/code/bin/start.sh
     environment:
       DATABASE_URL: postgres://postgres:postgress@passitdb:5432/postgres
       SECRET_KEY: 'y2W*KFADh&8yf3SgkB*!Tl'
@@ -37,6 +35,8 @@ services:
       NAME: 'LOGICABEANS PASSWORD MANAGER'
       APPLICATION_DOMAIN: 'http://pass.logicabeans.com'
       PRIVATE_ORG_MODE_WHITELIST: 'pass.logicabeans.com'
+      SECURE_SSL_REDIRECT: 'False'
+      SECURE_COOKIE: 'False'
     secrets:
       - source: passit.crt
         target: /code/bin/passit.crt
